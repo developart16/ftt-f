@@ -1,2 +1,1 @@
-# ftt-f
-Factorial Technical Test FrontEnd
+# Factorial Technical Test FrontEnd
