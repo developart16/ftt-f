@@ -1,13 +1,66 @@
 
-// container
-.cnt{
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
+:root {
+	--factorialClr: #f4f4f5;
+    font: Inter,sans-serif;
 }
 
 
+.body{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.block{ display: block;}
+
+.flex-row-center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-col-center{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+// ############################################################
+//  CONTAINERS
+// ############################################################
+
+@for $i from 0 through 5 {
+    .cnt-#{$i}{
+        margin: #{$i}#{'%'};
+        // padding: #{$i}#{'%'};
+    }
+}
+
+@for $i from 0 through 10 {
+    .padding-#{$i}{
+        padding: #{$i*10}#{'px'};
+        // padding: #{$i}#{'%'};
+    }
+}
+
+// ############################################################
+// FONTS
+// ############################################################
+
+@for $i from 0 through 10 {
+    .fnt-#{$i}{
+        font-size: #{$i*10}#{'px'};
+        // padding: #{$i}#{'%'};
+    }
+}
+
+.fnt-center{
+    text-align: center;
+}
 
 
 // ############################################################
@@ -26,6 +79,12 @@
 .clr-blue{
     color: blue;
 }
+.clr-grey{
+    color: grey;
+}
+.clr-factorialClr{
+    color: var(--factorialClr);
+}
 
 
 
@@ -40,4 +99,13 @@
 }
 .bgc-blue{
     background-color: blue;
+}
+.bgc-grey{
+    background-color: grey;
+}
+.bgc-lgrey{
+    background-color: lightgrey;
+}
+.bgc-factorialClr{
+    background-color: var(--factorialClr);
 }
