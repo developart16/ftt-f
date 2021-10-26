@@ -15,20 +15,6 @@
 
 .block{ display: block;}
 
-.flex-row-center{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.flex-col-center{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-
 // ############################################################
 //  CONTAINERS
 // ############################################################
@@ -43,7 +29,43 @@
 @for $i from 0 through 10 {
     .padding-#{$i}{
         padding: #{$i*10}#{'px'};
-        // padding: #{$i}#{'%'};
+    }
+    .paddingL-#{$i}{
+        padding-left: #{$i*10}#{'px'};
+    }
+    .paddingR-#{$i}{
+        padding-right: #{$i*10}#{'px'};
+    }
+    .paddingB-#{$i}{
+        padding-bottom: #{$i*10}#{'px'};
+    }
+    .paddingT-#{$i}{
+        padding-top: #{$i*10}#{'px'};
+    }
+
+    .margin-#{$i}{
+        margin: #{$i*10}#{'px'};
+    }
+    .marginL-#{$i}{
+        margin-left: #{$i*10}#{'px'};
+    }
+    .marginR-#{$i}{
+        margin-right: #{$i*10}#{'px'};
+    }
+    .marginB-#{$i}{
+        margin-bottom: #{$i*10}#{'px'};
+    }
+    .marginT-#{$i}{
+        margin-top: #{$i*10}#{'px'};
+    }
+}
+
+@for $i from 0 through 100 {
+    .w#{$i}{
+        width: #{$i}#{'%'};
+    }
+    .h#{$i}{
+        height: #{$i}#{'%'};
     }
 }
 
@@ -114,4 +136,55 @@
 }
 .bgc-factorialClr{
     background-color: var(--factorialClr);
+}
+
+// ############################################################
+// Flex
+// ############################################################
+
+.flex-row-center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-col-center{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex{
+    display: flex;
+}
+
+.fjcc{
+    display: flex;
+    justify-content: center;
+}
+
+.faic{
+    display: flex;
+    align-items: center;
+}
+
+.flex-col{
+    display: flex;
+    flex-direction: column;
+}
+
+.fass{
+    align-self: flex-start;
+}
+.fjss{
+    justify-self: flex-start;
+}
+
+.fasc{
+    align-self: center;
+}
+
+.fjsc{
+    justify-self: center;
 }
