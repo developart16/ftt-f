@@ -2,6 +2,7 @@ import { LineChartOutlined } from "@ant-design/icons";
 import { Line } from '@ant-design/charts';
 import { Modal, Table } from 'antd';
 import { useEffect, useState } from "react";
+import { formatTimestamp } from "../utils/time";
 
 export default function Main(){
 
@@ -20,16 +21,21 @@ export default function Main(){
                     day: 3
                 },
                 metrics: [
-                    { timestamp: '1991', price: 1},
-                    { timestamp: '1992', price: 3},
-                    { timestamp: '1993', price: 2},
-                    { timestamp: '1994', price: 4},
-                    { timestamp: '1995', price: 5},
-                    { timestamp: '1996', price: 4},
-                    { timestamp: '1997', price: 7},
-                    { timestamp: '1998', price: 6},
-                    { timestamp: '1999', price: 9},
-                ]
+                    { timestamp: 1635365081, price: 1},
+                    { timestamp: 1635365082, price: 3},
+                    { timestamp: 1635365083, price: 2},
+                    { timestamp: 1635365084, price: 4},
+                    { timestamp: 1635365085, price: 5},
+                    { timestamp: 1635365086, price: 4},
+                    { timestamp: 1635365087, price: 7},
+                    { timestamp: 1635365088, price: 6},
+                    { timestamp: 1635365089, price: 9},
+                ].map( _metric => { 
+                    return { 
+                        timestamp: formatTimestamp(_metric.timestamp),
+                        price: _metric.price
+                    }
+                })
             },
             {
                 position: 2,
@@ -40,16 +46,21 @@ export default function Main(){
                     day: 4
                 },
                 metrics: [
-                    { timestamp: '1991', price: 4},
-                    { timestamp: '1992', price: 2},
-                    { timestamp: '1993', price: 2},
-                    { timestamp: '1994', price: 4},
-                    { timestamp: '1995', price: 3},
-                    { timestamp: '1996', price: 6},
-                    { timestamp: '1997', price: 7},
-                    { timestamp: '1998', price: 9},
-                    { timestamp: '1999', price: 8},
-                ]
+                    { timestamp: 1635365081, price: 4},
+                    { timestamp: 1635365082, price: 2},
+                    { timestamp: 1635365083, price: 2},
+                    { timestamp: 1635365084, price: 4},
+                    { timestamp: 1635365085, price: 3},
+                    { timestamp: 1635365086, price: 6},
+                    { timestamp: 1635365087, price: 7},
+                    { timestamp: 1635365088, price: 9},
+                    { timestamp: 1635365089, price: 8},
+                ].map( _metric => { 
+                    return { 
+                        timestamp: formatTimestamp(_metric.timestamp),
+                        price: _metric.price
+                    }
+                })
             },
         ])
         
@@ -64,7 +75,7 @@ export default function Main(){
 
     const Content = ()=> {
         
-        const [modalInfo, setModalInfo] = useState(false);
+        const [modalInfo, setModalInfo] = useState(null);
         
         const graphConfig = {
             data: modalInfo?.metrics,
@@ -80,7 +91,7 @@ export default function Main(){
         const ExtraInfo = () => (<>
             <Modal
                 width={700}
-                title={`${modalInfo.name} Graph`}
+                title={`${modalInfo && modalInfo.name} Graph`}
                 visible={modalInfo}
                 onCancel={()=>{
                     setModalInfo(false)
