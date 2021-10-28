@@ -1,11 +1,12 @@
 /**
  * Checks if the provided value is a correct timesatmp
  * @param {number} timestamp 
+ * @throws will `throw` an `Error` if provided `timestamp` is not a number type
  * @returns {number} `number`
  */
 exports.checkTimestamp = timestamp => {
 
-    if ( ! timestamp || typeof timestamp !== 'number' ) throw Error("Wrong Timestamp!");
+    if ( ! timestamp || typeof timestamp !== 'number' ) throw new Error("Wrong Timestamp!");
     return timestamp;
 
 }
@@ -13,6 +14,7 @@ exports.checkTimestamp = timestamp => {
 /**
  * returns a `Date` format from provided timestamp
  * @param {number} timestamp 
+ * @throws will `throw` an `Error` if provided `timestamp` is not a number type
  * @returns {Date} `Date`
  */
 exports.getDate = timestamp => {
@@ -29,6 +31,7 @@ exports.getDate = timestamp => {
  * @param {number} timestamp the timestamp to format
  * @param {string} formatTo provides information about the desired format of output, default `Y-m-d H:i:s`
  * @param {boolean} prefix includes prefix `0` before any number below 10, example `2020-9-9 => 2020-09-09`
+ * @throws will `throw` an `Error` if provided `timestamp` is not a number type
  * @returns {string} `string`
  */
 exports.formatTimestamp = ( timestamp, formatTo = 'Y-m-d H:i:s', prefix = true ) => {

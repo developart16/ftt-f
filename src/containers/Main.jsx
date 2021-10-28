@@ -1,17 +1,55 @@
 import { LineChartOutlined } from "@ant-design/icons";
 import { Line } from '@ant-design/charts';
 import { Modal, Table } from 'antd';
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatTimestamp } from "../utils/time";
+import SelectController from "../components/SelectController";
 
 export default function Main(){
 
     const [cryptos, setCryptos] = useState([]);
+    const [selectedCryptos, setSelectedCryptos] = useState([]);
+
+    const availableCryptosList = useMemo( ()=>{
+        return [
+            {
+                id: "XDG",
+                currency:"EUR",
+                name: "Dogecoin",
+            },
+            {
+                id: "BTC",
+                currency:"EUR",
+                name: "Bitcoin"
+            },
+            {
+                id: "ETH",
+                currency:"EUR",
+                name: "Etherium"
+            },
+            {
+                id: "ADA",
+                currency:"EUR",
+                name: "Cardano"
+            },
+            {
+                id: "DOT",
+                currency:"EUR",
+                name: "Polkadot"
+            },
+            {
+                id: "XRP",
+                currency:"EUR",
+                name: "Ripple"
+            },
+        
+        ]
+    })
 
     useEffect( async () => {
 
         //TODO: GET cryptos from database
-        setCryptos([
+        const infoFromDataBase = [
             {
                 position: 1,
                 name: "Bitcoin",
@@ -62,9 +100,16 @@ export default function Main(){
                     }
                 })
             },
-        ])
+        ];
+
+        setCryptos(infoFromDataBase);
         
     }, []);
+
+    useEffect( () => {
+        
+        console.log( "selectedCryptos", `(${typeof selectedCryptos}): `, selectedCryptos);
+    }, [selectedCryptos]);
 
     const Header = ()=> (
         <div className="cnt-2 bgc-theme"> 
@@ -108,18 +153,18 @@ export default function Main(){
                             </div>
                         </div>
                         <div>
-                            <h4>Averages</h4>
+                            <h4>Averages per last</h4>
                             <div className="flex">
                                 <div className="padding-1">
-                                    <p>Minutes</p>
+                                    <p>Minute</p>
                                     <p>{modalInfo.averages.minute}</p>
                                 </div>
                                 <div className="padding-1">
-                                    <p>Hours</p>
+                                    <p>Hour</p>
                                     <p>{modalInfo.averages.hour}</p>
                                 </div>
                                 <div className="padding-1">
-                                    <p>Days</p>
+                                    <p>Day</p>
                                     <p>{modalInfo.averages.day}</p>
                                 </div>
                             </div>
@@ -177,12 +222,29 @@ export default function Main(){
                 }
             },
     
-        ]
-    
+        ];
 
         return (
             <div className="padding-2 bgc-purple flex-row-center flex-col-center">
                 <ExtraInfo/>
+                <div className="flex-col w100 paddingB-3">
+                    <span className="fjcc w100">
+                        <SelectController
+                            selected = { selectedCryptos }
+                            optionsList = { availableCryptosList }
+                            onChange = { value => setSelectedCryptos(value)}
+                            selectOptions = {{
+                                mode: "multiple",
+                                className: "w40",
+                                allowClear: true,
+                            }}
+                        />
+                    </span>
+                    <span className="fjcc w100">
+                        <p className="fnt-2">Select the cryptos to visualize</p>
+                    </span>
+                </div>
+
                 <Table 
                     className="fnt-center"
                     rowKey={ _x => _x.name}
@@ -199,6 +261,9 @@ export default function Main(){
             </div>
         )
     }
+
+  
+
 
     return (
         <div className="body bgc-theme">
