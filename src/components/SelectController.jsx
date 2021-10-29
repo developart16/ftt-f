@@ -3,6 +3,22 @@ import { Select } from 'antd';
 
 const {Option} = Select;
 
+
+
+/**
+ * @typedef {Object} Props
+ * @property {string[]} selected
+ * @property {object[]} optionsList
+ * @property {function} onChange callback function
+ * @property {object[]} selectOptions
+ * 
+*/
+
+/**
+ * 
+ * @param {Props} props
+ * @returns <Select/>
+ */
 export default function SelectController({
     selected = [],
     optionsList = [],

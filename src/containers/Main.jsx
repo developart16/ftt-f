@@ -1,114 +1,118 @@
-import { LineChartOutlined } from "@ant-design/icons";
 import { Line } from '@ant-design/charts';
+import { LineChartOutlined } from "@ant-design/icons";
 import { Modal, Table } from 'antd';
-import { useEffect, useMemo, useState } from "react";
-import { formatTimestamp } from "../utils/time";
+import { useEffect, useState } from "react";
 import SelectController from "../components/SelectController";
+import { formatTimestamp } from "../utils/time";
 
 export default function Main(){
 
     const [cryptos, setCryptos] = useState([]);
     const [selectedCryptos, setSelectedCryptos] = useState([]);
+    const [availableCryptosList, setAvailableCryptosList] = useState([]);
 
-    const availableCryptosList = useMemo( ()=>{
-        return [
-            {
-                id: "XDG",
-                currency:"EUR",
-                name: "Dogecoin",
-            },
-            {
-                id: "BTC",
-                currency:"EUR",
-                name: "Bitcoin"
-            },
-            {
-                id: "ETH",
-                currency:"EUR",
-                name: "Etherium"
-            },
-            {
-                id: "ADA",
-                currency:"EUR",
-                name: "Cardano"
-            },
-            {
-                id: "DOT",
-                currency:"EUR",
-                name: "Polkadot"
-            },
-            {
-                id: "XRP",
-                currency:"EUR",
-                name: "Ripple"
-            },
-        
-        ]
-    })
+    useEffect( () => {
 
-    useEffect( async () => {
+        (async () => {
 
-        //TODO: GET cryptos from database
-        const infoFromDataBase = [
-            {
-                position: 1,
-                name: "Bitcoin",
-                averages: {
-                    minute: 1,
-                    hour: 2,
-                    day: 3
+            //TODO build axios with promise all to get info from database
+            const infoFromDataBase = [
+                {
+                    position: 1,
+                    name: "Bitcoin",
+                    averages: {
+                        minute: 1,
+                        hour: 2,
+                        day: 3
+                    },
+                    metrics: [
+                        { timestamp: 1635365081, price: 1},
+                        { timestamp: 1635365082, price: 3},
+                        { timestamp: 1635365083, price: 2},
+                        { timestamp: 1635365084, price: 4},
+                        { timestamp: 1635365085, price: 5},
+                        { timestamp: 1635365086, price: 4},
+                        { timestamp: 1635365087, price: 7},
+                        { timestamp: 1635365088, price: 6},
+                        { timestamp: 1635365089, price: 9},
+                    ].map( _metric => { 
+                        return { 
+                            timestamp: formatTimestamp(_metric.timestamp),
+                            price: _metric.price
+                        }
+                    })
                 },
-                metrics: [
-                    { timestamp: 1635365081, price: 1},
-                    { timestamp: 1635365082, price: 3},
-                    { timestamp: 1635365083, price: 2},
-                    { timestamp: 1635365084, price: 4},
-                    { timestamp: 1635365085, price: 5},
-                    { timestamp: 1635365086, price: 4},
-                    { timestamp: 1635365087, price: 7},
-                    { timestamp: 1635365088, price: 6},
-                    { timestamp: 1635365089, price: 9},
-                ].map( _metric => { 
-                    return { 
-                        timestamp: formatTimestamp(_metric.timestamp),
-                        price: _metric.price
-                    }
-                })
-            },
-            {
-                position: 2,
-                name: "Etherium",
-                averages: {
-                    minute: 2,
-                    hour: 3,
-                    day: 4
+                {
+                    position: 2,
+                    name: "Etherium",
+                    averages: {
+                        minute: 2,
+                        hour: 3,
+                        day: 4
+                    },
+                    metrics: [
+                        { timestamp: 1635365081, price: 4},
+                        { timestamp: 1635365082, price: 2},
+                        { timestamp: 1635365083, price: 2},
+                        { timestamp: 1635365084, price: 4},
+                        { timestamp: 1635365085, price: 3},
+                        { timestamp: 1635365086, price: 6},
+                        { timestamp: 1635365087, price: 7},
+                        { timestamp: 1635365088, price: 9},
+                        { timestamp: 1635365089, price: 8},
+                    ].map( _metric => { 
+                        return { 
+                            timestamp: formatTimestamp(_metric.timestamp),
+                            price: _metric.price
+                        }
+                    })
                 },
-                metrics: [
-                    { timestamp: 1635365081, price: 4},
-                    { timestamp: 1635365082, price: 2},
-                    { timestamp: 1635365083, price: 2},
-                    { timestamp: 1635365084, price: 4},
-                    { timestamp: 1635365085, price: 3},
-                    { timestamp: 1635365086, price: 6},
-                    { timestamp: 1635365087, price: 7},
-                    { timestamp: 1635365088, price: 9},
-                    { timestamp: 1635365089, price: 8},
-                ].map( _metric => { 
-                    return { 
-                        timestamp: formatTimestamp(_metric.timestamp),
-                        price: _metric.price
-                    }
-                })
-            },
-        ];
+            ];
+            const _availableCryptosList = [
+                {
+                    id: "XDG",
+                    currency:"EUR",
+                    name: "Dogecoin",
+                },
+                {
+                    id: "BTC",
+                    currency:"EUR",
+                    name: "Bitcoin"
+                },
+                {
+                    id: "ETH",
+                    currency:"EUR",
+                    name: "Etherium"
+                },
+                {
+                    id: "ADA",
+                    currency:"EUR",
+                    name: "Cardano"
+                },
+                {
+                    id: "DOT",
+                    currency:"EUR",
+                    name: "Polkadot"
+                },
+                {
+                    id: "XRP",
+                    currency:"EUR",
+                    name: "Ripple"
+                },
+            
+            ];
 
-        setCryptos(infoFromDataBase);
-        
+            setCryptos(infoFromDataBase);
+            setAvailableCryptosList(_availableCryptosList)
+
+        })();
+
     }, []);
 
     useEffect( () => {
-        
+        // TODO: get API information
         console.log( "selectedCryptos", `(${typeof selectedCryptos}): `, selectedCryptos);
+
     }, [selectedCryptos]);
 
     const Header = ()=> (
@@ -261,9 +265,6 @@ export default function Main(){
             </div>
         )
     }
-
-  
-
 
     return (
         <div className="body bgc-theme">
