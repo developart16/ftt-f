@@ -16,11 +16,11 @@ exports.checkNum = num => {
 exports.calcAverage = numbers => {
 
     // checks every input to verify everythis is a type number
-    const allNumbers = numbers.every( _num => typeof _num !== 'number' );
+    const allNumbers = numbers.every( _num => typeof _num === 'number' );
     if ( ! allNumbers ) throw new Error("Not a number");
 
     // sums all numbers starting from position 0
-    const sumatory = numbers.reduce( ( _prevNum, _currNum ) => _prevNum + _currNum, 0 );
+    const sumatory = numbers.reduce( ( _prevNum, _currNum ) => +_prevNum + +_currNum, 0 );
     const average = (sumatory / numbers.length );
 
     return average;
