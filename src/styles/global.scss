@@ -1,6 +1,7 @@
 
 :root {
-	--factorialClr: #f4f4f5;
+	--factorialSecondaryClr: #f4f4f5;
+    --factorialMainClr: #ff6685;
     font: Inter,sans-serif;
 }
 
@@ -11,6 +12,14 @@
     bottom: 0;
     left: 0;
     right: 0;
+}
+
+.container{
+    padding: 10px;
+    border-radius: 5%;
+    background-color: whitesmoke;
+    box-shadow: 4px 4px;
+    font: message-box;
 }
 
 .pointer{
@@ -93,6 +102,9 @@
 //  COLORS
 // ############################################################
 
+.clr-white{
+    color: white;
+}
 .clr-red{
     color: red;
 }
@@ -111,8 +123,11 @@
 .clr-grey{
     color: grey;
 }
-.clr-factorialClr{
-    color: var(--factorialClr);
+.clr-factorialSecondaryClr{
+    color: var(--factorialSecondaryClr);
+}
+.clr-factorialMainClr{
+    color: var(--factorialMainClr);
 }
 
 
@@ -138,8 +153,11 @@
 .bgc-lgrey{
     background-color: lightgrey;
 }
-.bgc-factorialClr{
-    background-color: var(--factorialClr);
+.bgc-factorialSecondaryClr{
+    background-color: var(--factorialSecondaryClr);
+}
+.bgc-factorialMainClr{
+    background-color: var(--factorialMainClr);
 }
 
 // ############################################################

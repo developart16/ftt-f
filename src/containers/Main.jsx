@@ -1,6 +1,6 @@
 import { Line } from '@ant-design/charts';
-import { LineChartOutlined } from "@ant-design/icons";
-import { message, Modal, Table } from 'antd';
+import { Button, message, Modal, Table } from 'antd';
+import Header from './Header';
 import axios from 'axios';
 import { useEffect, useState } from "react";
 import SelectController from "../components/SelectController";
@@ -8,17 +8,19 @@ import { calcAverage } from '../utils/average';
 import { numRound } from '../utils/round';
 import { formatTimestamp } from "../utils/time";
 
-
 const backendUrl = process.env.BACKEND_URL ||'http://localhost:4500';
 
-
-function formatCrypto( rawData, format = 'Y-m-d H:i:s' ){
+function formatCrypto({
+    rawData, 
+    format = 'Y-m-d H:i:s', 
+    metricLength = 60 
+}){
 
     let prices = [];
 
     let metrics = [];
 
-    for (let i = (rawData.data.length - 1); i > (rawData.data.length - 50); i-- ){
+    for (let i = (rawData.data.length - 1); i > (rawData.data.length - metricLength); i-- ){
         prices.push( +rawData.data[i][1] );
         metrics.unshift({
             timestamp: formatTimestamp(rawData.data[i][0], format), 
@@ -32,115 +34,34 @@ function formatCrypto( rawData, format = 'Y-m-d H:i:s' ){
     }
 }
 
+async function saveMetrics(metrics){
+
+    const { data: send } = await axios.post(`${backendUrl}/metrics`,{metrics});
+
+    if ( ! send.error ) message.success('Metrics saved correctly!')
+    else message.error( send.message );
+}
+
 export default function Main(){
 
     const [cryptos, setCryptos] = useState([]);
     const [selectedCryptos, setSelectedCryptos] = useState([]);
     const [availableCryptosList, setAvailableCryptosList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [updater, setUpdater] = useState(0);
+    const [savedMetrics, setSavedMetrics] = useState([]);
 
     useEffect( () => {
 
         (async () => {
 
-            //TODO build axios with promise all to get info from database
-            // const infoFromDataBase = [
-            //     {
-            //         // position: 1,
-            //         name: "Bitcoin",
-            //         averages: {
-            //             minute: 1,
-            //             hour: 2,
-            //             day: 3
-            //         },
-            //         metrics: {
-            //             minute: [{ timestamp: 1635365081, price: 3},{ timestamp: 1635365090, price: 4},].map( _metric => { 
-            //                 return { 
-            //                     timestamp: formatTimestamp(_metric.timestamp),
-            //                     price: _metric.price
-            //                 }
-            //             }),
-            //             hour: [{ timestamp: 1635365081, price: 3},{ timestamp: 1635365090, price: 4},].map( _metric => { 
-            //                 return { 
-            //                     timestamp: formatTimestamp(_metric.timestamp),
-            //                     price: _metric.price
-            //                 }
-            //             }),
-            //             day:[{ timestamp: 1635365081, price: 3},{ timestamp: 1635365090, price: 4},].map( _metric => { 
-            //                 return { 
-            //                     timestamp: formatTimestamp(_metric.timestamp),
-            //                     price: _metric.price
-            //                 }
-            //             })
-            //         }
-            //     },
-            //     {
-            //         // position: 2,
-            //         name: "Etherium",
-            //         averages: {
-            //             minute: 2,
-            //             hour: 3,
-            //             day: 4
-            //         },
-            //         metrics: {
-            //             minute: [{ timestamp: 1635365081, price: 2},{ timestamp: 1635365090, price: 4},].map( _metric => { 
-            //                 return { 
-            //                     timestamp: formatTimestamp(_metric.timestamp),
-            //                     price: _metric.price
-            //                 }
-            //             }),
-            //             hour: [{ timestamp: 1635365081, price: 2},{ timestamp: 1635365090, price: 4},].map( _metric => { 
-            //                 return { 
-            //                     timestamp: formatTimestamp(_metric.timestamp),
-            //                     price: _metric.price
-            //                 }
-            //             }),
-            //             day:[{ timestamp: 1635365081, price: 2},{ timestamp: 1635365090, price: 4},].map( _metric => { 
-            //                 return { 
-            //                     timestamp: formatTimestamp(_metric.timestamp),
-            //                     price: _metric.price
-            //                 }
-            //             })
-            //         }
-            //     },
-            // ];
-            const _availableCryptosList = [
-                {
-                    id: "XDG",
-                    currency:"EUR",
-                    name: "Dogecoin",
-                },
-                {
-                    id: "BTC",
-                    currency:"EUR",
-                    name: "Bitcoin"
-                },
-                {
-                    id: "ETH",
-                    currency:"EUR",
-                    name: "Etherium"
-                },
-                {
-                    id: "ADA",
-                    currency:"EUR",
-                    name: "Cardano"
-                },
-                {
-                    id: "DOT",
-                    currency:"EUR",
-                    name: "Polkadot"
-                },
-                {
-                    id: "XRP",
-                    currency:"EUR",
-                    name: "Ripple"
-                },
+            const { data: { data: _availableCryptosList } } = await axios.get(`${backendUrl}/cryptos`);
+            if (_availableCryptosList) setAvailableCryptosList(_availableCryptosList)
+            else message.error('Something went Wrong!')
             
-            ];
-
-            // setCryptos(infoFromDataBase);
-            setAvailableCryptosList(_availableCryptosList)
-
+            const { data: { data: metrics } } = await axios.get(`${backendUrl}/metrics`);
+            if ( metrics ) setSavedMetrics(metrics);
+            else message.error('Something went Wrong!')
         })();
 
     }, []);
@@ -157,9 +78,10 @@ export default function Main(){
                 for await(const _crypto of list) {
 
                     const promises = await Promise.all([
-                        axios.get(`${backendUrl}/metrics?cryptoId=${_crypto.id}&interval=${1}`),
-                        axios.get(`${backendUrl}/metrics?cryptoId=${_crypto.id}&interval=${60}`),
-                        axios.get(`${backendUrl}/metrics?cryptoId=${_crypto.id}&interval=${1440}`),
+                        axios.get(`${backendUrl}/newMetrics?cryptoId=${_crypto.id}&interval=${1}`),
+                        axios.get(`${backendUrl}/newMetrics?cryptoId=${_crypto.id}&interval=${60}`),
+                        axios.get(`${backendUrl}/newMetrics?cryptoId=${_crypto.id}&interval=${1440}`),
+                        axios.get(`${backendUrl}/metrics`)
                     ])
 
                     if ( ! promises ) message.error('Error loading metrics!');
@@ -168,11 +90,28 @@ export default function Main(){
                         { data: intervalsPerMinute },
                         { data: intervalsPerHour },
                         { data: intervalsPerDay },
+                        { data: { data: metrics } },
                     ] = promises;
 
-                    const minutes = formatCrypto(intervalsPerMinute, 'm-d H:i');
-                    const hour = formatCrypto(intervalsPerHour, 'm-d H');
-                    const day = formatCrypto(intervalsPerDay, 'Y-m-d');
+                    if ( metrics ) setSavedMetrics(metrics);
+
+                    const minutes = formatCrypto({
+                        rawData: intervalsPerMinute,
+                        format: 'm-d H:i',
+                        metricLength: 60
+                    });
+                    const hour = formatCrypto({
+                        rawData: intervalsPerHour,
+                        format: 'H:i',
+                        metricLength: 24
+                    });
+                    const day = formatCrypto({
+                        rawData: intervalsPerDay,
+                        format: 'Y-m-d',
+                        metricLength: 30
+                    });
+                    // const hour = formatCrypto(intervalsPerHour, 'H:i', 24);
+                    // const day = formatCrypto(intervalsPerDay, 'Y-m-d', 30);
     
                     newCryptos.push({
                         ..._crypto,
@@ -195,26 +134,129 @@ export default function Main(){
 
         }
 
+    }, [selectedCryptos, availableCryptosList, updater]);
 
-    }, [selectedCryptos, availableCryptosList]);
-
-    const Header = ()=> (
-        <div className="cnt-2 bgc-theme"> 
-            <p className="fnt-3">Artur Vardanyan's Crypto Visualization</p>
-        </div>
-    )
-
-
-    const Content = ()=> {
+    function Content() {
         
-        const [modalInfo, setModalInfo] = useState(null);
+        const [modalCrypto, setModalCrypto] = useState(null);
+        const [modalMetric, setModalMetric] = useState(null);
+
+        useEffect( () => {
+            
+            const _metricMatch = savedMetrics.find( _metric => modalCrypto && modalCrypto.id === _metric.id );
+            if (_metricMatch) setModalMetric(_metricMatch)
+
+        }, [modalCrypto]);
+
+        const columns = [
+            // {
+            //     key:'position',
+            //     title:'Position',
+            //     dataIndex:'position'
+            // },
+            {
+                key:'name',
+                title:'Name',
+                dataIndex:'name'
+            },
+            {
+                key:'avgMin',
+                title:'Minutes (avg)',
+                dataIndex:'averages',
+                render: (averages, crypto)=> {
+                    const metric = savedMetrics.find( _metric => crypto.id === _metric.id );
+                    return <>
+                        {metric && <span 
+                            className={`
+                                fnt-center 
+                                ${metric.averages.minute >= averages.minute
+                                    ? 'clr-green'
+                                    : 'clr-red'
+                                }`
+                            }
+                        >
+                            {metric.averages.minute >= averages.minute
+                                ? '⬆'
+                                : '⬇'
+                            }
+                            {/* {metric.averages.minute} */}
+                        </span>}
+                        <span className="fnt-center"> {averages.minute}</span>
+                    </>
+                }
+            },
+            {
+                key:'avgHour',
+                title:'Hours (avg)',
+                dataIndex:'averages',
+                render: (averages, crypto)=> {
+                    const metric = savedMetrics.find( _metric => crypto.id === _metric.id );
+                    return <>
+                        {metric && <span 
+                            className={`
+                                fnt-center 
+                                ${metric.averages.hour >= averages.hour
+                                    ? 'clr-green'
+                                    : 'clr-red'
+                                }`
+                            }
+                        >
+                            {metric.averages.hour >= averages.hour
+                                ? '⬆'
+                                : '⬇'
+                            }
+                            {/* {metric.averages.hour} */}
+                        </span>}
+                        <span className="fnt-center"> {averages.hour}</span>
+                    </>
+                }
+            },
+            {
+                key:'avgDay',
+                title:'days (avg)',
+                dataIndex:'averages',
+                render: (averages, crypto)=> {
+                    const metric = savedMetrics.find( _metric => crypto.id === _metric.id );
+                    return <>
+                        {metric && <span 
+                            className={`
+                                fnt-center 
+                                ${metric.averages.day >= averages.day
+                                    ? 'clr-green'
+                                    : 'clr-red'
+                                }`
+                            }
+                        >
+                            {metric.averages.day >= averages.day
+                                ? '⬆'
+                                : '⬇'
+                            }
+                            {/* {metric.averages.day} */}
+                        </span>}
+                        <span className="fnt-center"> {averages.day}</span>
+                    </>
+                }
+            },
+            {
+                key:'actions',
+                title:'Actions',
+                render: ( _data ) => (
+                    <Button
+                        type="primary"
+                        onClick={ () => setModalCrypto(_data)}
+                    > 
+                    Metrics 📈
+                    </Button>
+                )   
+            },
+        ];
         
-        const ExtraInfo = () => {
+        const ModalExtraInfo = () => {
             
             const [selectedMetric, setSelectedMetric] = useState('day');
 
             const graphConfig = {
-                data: modalInfo && modalInfo?.metrics[selectedMetric] || [],
+                data: (modalCrypto && modalCrypto?.metrics[selectedMetric]) || [],
                 height: 250,
                 xField: 'timestamp',
                 yField: 'price',
@@ -225,21 +267,35 @@ export default function Main(){
             };
 
             const AverageInfo = ({time = "day"}) => {
+                const _time = time.toLowerCase();
                 return (
                     <div 
                         onClick={()=>{
-                            setSelectedMetric(time.toLowerCase());
+                            setSelectedMetric(_time);
                         }}
                         className={`
+                            container
                             pointer 
                             padding-1 
                             paddingR-2 
                             paddingL-2 
-                            ${selectedMetric === time.toLowerCase() && 'bgc-lgrey'}
+                            ${selectedMetric === _time && 'bgc-lgrey'}
                         `}
                     >
                         <p>{time}</p>
-                        <p>{modalInfo.averages?.[time.toLowerCase()]}</p>
+                        <p>
+                            {modalMetric && <span 
+                                className={`marginR-1
+                                    ${modalMetric.averages[_time] <= modalCrypto.averages?.[_time]
+                                        ? 'clr-green'
+                                        : 'clr-red'
+                                    }
+                                `}
+                            >
+                                {modalMetric.averages[_time]}
+                            </span>}
+                            {modalCrypto.averages?.[_time]}
+                        </p>
                     </div>
                 )
             }
@@ -247,21 +303,24 @@ export default function Main(){
             return (<>
                 <Modal
                     width={700}
-                    title={`${modalInfo && modalInfo.name} Graph`}
-                    visible={modalInfo}
+                    title={`${modalCrypto && modalCrypto.name} Graph`}
+                    visible={modalCrypto}
                     onCancel={()=>{
-                        setModalInfo(false)
+                        setModalCrypto(false)
                     }}
                     footer={null}
                     destroyOnClose
                 >
-                    { modalInfo &&(<>
+                    { modalCrypto &&(<>
                         <span className="flex fnt-center">
                             <div className="flex fjss w38">
-                                {/* <div className="marginL-2">
-                                    <h4>Position</h4>
-                                    <p>{modalInfo.position}</p>
-                                </div> */}
+                                {modalMetric &&
+                                    <div className="marginL-2">
+                                        <h4>Last save</h4>
+                                        <p>{ formatTimestamp(modalMetric.timestamp)}</p>
+                                    </div>
+                                }
+                                
                             </div>
                             <div>
                                 <h4>Averages per last</h4>
@@ -282,52 +341,10 @@ export default function Main(){
                 </Modal>
             </>);
         }
-    
-        const columns = [
-            // {
-            //     key:'position',
-            //     title:'Position',
-            //     dataIndex:'position'
-            // },
-            {
-                key:'name',
-                title:'Name',
-                dataIndex:'name'
-            },
-            {
-                key:'avgMin',
-                title:'Minutes (avg)',
-                dataIndex:'averages',
-                render: (averages)=> <span className="fnt-center">{averages.minute}</span>
-            },
-            {
-                key:'avgHour',
-                title:'Hours (avg)',
-                dataIndex:'averages',
-                render: (averages)=> <span className="fnt-center">{averages.hour}</span>
-            },
-            {
-                key:'avgDay',
-                title:'days (avg)',
-                dataIndex:'averages',
-                render: (averages)=> <span className="fnt-center">{averages.day}</span>
-            },
-            {
-                key:'actions',
-                title:'Actions',
-                render: ( _data ) => {
-                    return <LineChartOutlined 
-                        onClick={ () => setModalInfo(_data)}
-                    />
-                }
-            },
-    
-        ];
-
-        return (
-            <div className="padding-2 bgc-purple flex-row-center flex-col-center">
-                <ExtraInfo/>
-                <div className="flex-col w100 paddingB-3">
+        
+        function CryptosSelector(){
+            return (
+                <div className="flex-col w100">
                     <span className="fjcc w100">
                         <SelectController
                             selected = { selectedCryptos }
@@ -341,13 +358,49 @@ export default function Main(){
                         />
                     </span>
                     <span className="fjcc w100">
-                        <p className="fnt-2">Select the cryptos to visualize</p>
+                        <p className="fnt-2 clr-white">Select the cryptos to visualize</p>
                     </span>
                 </div>
+            );
+        }
+
+        function LoadAndSave(){
+            return (
+                <div className="fjcc w30">
+                    <Button 
+                        type="primary"
+                        className="marginB-3 marginR-2"
+                        disabled={ loading || ! cryptos.length }
+                        onClick={ _ev => setUpdater( updater + 1) }
+                    >
+                        Reload 🔁
+                    </Button>
+                    <Button 
+                        type="primary"
+                        className="marginB-3"
+                        disabled={ loading || ! cryptos.length }
+                        onClick={ _ev => {
+                            saveMetrics( cryptos );
+                            setUpdater( updater + 1 );
+                        }}
+                    >
+                        Save ⏺
+                    </Button>
+                </div>
+            )
+        }
+
+        return (
+            <div className="padding-2 bgc-purple flex-row-center flex-col-center">
+                <ModalExtraInfo/>
+                
+                <CryptosSelector/>
+
+                <LoadAndSave/>
 
                 <Table 
                     loading={loading}
-                    className="fnt-center"
+                    className="container fnt-center"
                     rowKey={ _x => _x.name}
                     columns={ columns } 
                     dataSource={cryptos} 
