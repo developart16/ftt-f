@@ -7,6 +7,7 @@ import SelectController from "../components/SelectController";
 import { calcAverage } from '../utils/average';
 import { numRound } from '../utils/round';
 import { formatTimestamp } from "../utils/time";
+import { getPercentage } from '../utils/percentage';
 
 const backendUrl = process.env.BACKEND_URL ||'http://localhost:4500';
 
@@ -169,7 +170,7 @@ export default function Main(){
                         {metric && <span 
                             className={`
                                 fnt-center 
-                                ${metric.averages.minute >= averages.minute
+                                ${metric.averages.minute <= averages.minute
                                     ? 'clr-green'
                                     : 'clr-red'
                                 }`
@@ -283,7 +284,7 @@ export default function Main(){
                         `}
                     >
                         <p>{time}</p>
-                        <p>
+                        <p className="flex">
                             {modalMetric && <span 
                                 className={`marginR-1
                                     ${modalMetric.averages[_time] <= modalCrypto.averages?.[_time]
@@ -292,7 +293,16 @@ export default function Main(){
                                     }
                                 `}
                             >
-                                {modalMetric.averages[_time]}
+                                {`
+                                    ${
+                                        numRound(
+                                            getPercentage(
+                                                modalMetric.averages[_time], 
+                                                modalCrypto.averages[_time]
+                                            )
+                                        )
+                                    }%
+                                `}
                             </span>}
                             {modalCrypto.averages?.[_time]}
                         </p>
@@ -402,10 +412,11 @@ export default function Main(){
                     loading={loading}
                     className="container fnt-center"
                     rowKey={ _x => _x.name}
+                    scroll={{ x: true }}
                     columns={ columns } 
                     dataSource={cryptos} 
                     pagination={{
-                        total:( cryptos.length ),
+                        total: ( cryptos.length ),
                         pageSizeOptions: [10, 20, 50, 100],
                         defaultPageSize: 100,
                         showSizeChanger: true,
