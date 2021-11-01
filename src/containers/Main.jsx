@@ -11,6 +11,12 @@ import { getPercentage } from '../utils/percentage';
 
 const backendUrl = process.env.BACKEND_URL ||'http://localhost:4500';
 
+
+/**
+ * Formats crypto information gotten fron the API
+ * @param {object} param0 
+ * @returns 
+ */
 function formatCrypto({
     rawData, 
     format = 'Y-m-d H:i:s', 
@@ -35,6 +41,10 @@ function formatCrypto({
     }
 }
 
+/**
+ * Saves the current metric in the Database
+ * @param {object} metrics 
+ */
 async function saveMetrics(metrics){
 
     const { data: send } = await axios.post(`${backendUrl}/metrics`,{metrics});
